@@ -6,6 +6,28 @@
 #include "lib_poisson1D.h"
 
 void set_GB_operator_colMajor_poisson1D(double* AB, int *lab, int *la, int *kv){
+  //banded matrix AB is stored in column major format
+  int ii,jj;
+  for (ii=0;ii<(*la);ii++){
+    for (jj=0;jj<(*lab);jj++){
+      AB[ii*(*lab)+jj]=0.0;
+    }
+  }
+  for (ii=0;ii<(*la);ii++){
+    AB[ii*(*lab)+ii]=2.0;
+  }
+  for (ii=0;ii<(*la)-1;ii++){
+    AB[ii*(*lab)+ii+1]=-1.0;
+  }
+  for (ii=1;ii<(*la);ii++){
+    AB[ii*(*lab)+ii-1]=-1.0;
+  }
+  AB[0]=1.0;
+  AB[(*la)*(*lab)-1]=1.0;
+  AB[(*la)*(*lab)-2]=-1.0;
+  AB[(*la)*(*lab)-(*lab)]=-1.0;
+
+  // write_GB_operator_colMajor_poisson1D(AB, lab, la, "AB.dat");  
 }
 
 void set_GB_operator_colMajor_poisson1D_Id(double* AB, int *lab, int *la, int *kv){
@@ -18,6 +40,7 @@ void set_analytical_solution_DBC_1D(double* EX_SOL, double* X, int* la, double* 
 }  
 
 void set_grid_points_1D(double* x, int* la){
+
 }
 
 void write_GB_operator_rowMajor_poisson1D(double* AB, int* lab, int* la, char* filename){
