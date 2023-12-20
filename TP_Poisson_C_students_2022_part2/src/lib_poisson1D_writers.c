@@ -5,46 +5,6 @@
 /**********************************************/
 #include "lib_poisson1D.h"
 
-void set_GB_operator_colMajor_poisson1D(double* AB, int *lab, int *la, int *kv){
-  //banded matrix AB is stored in column major format
-  //of the POISSON 1D matrix
-
-  int ii,jj;
-  for (ii=0;ii<(*la);ii++){
-    for (jj=0;jj<(*lab);jj++){
-      AB[ii*(*lab)+jj]=0.0;
-    }
-  }
-  for (ii=0;ii<(*la);ii++){
-    AB[ii*(*lab)+ii]=2.0;
-  }
-  for (ii=0;ii<(*la)-1;ii++){
-    AB[ii*(*lab)+ii+1]=-1.0;
-  }
-  for (ii=1;ii<(*la);ii++){
-    AB[ii*(*lab)+ii-1]=-1.0;
-  }
-  
-
-
-  // write_GB_operator_colMajor_poisson1D(AB, lab, la, "AB.dat");  
-}
-
-void set_GB_operator_colMajor_poisson1D_Id(double* AB, int *lab, int *la, int *kv){
-}
-
-void set_dense_RHS_DBC_1D(double* RHS, int* la, double* BC0, double* BC1){
-}  
-
-void set_analytical_solution_DBC_1D(double* EX_SOL, double* X, int* la, double* BC0, double* BC1){
-
-}  
-
-void set_grid_points_1D(double* x, int* la){
-
-
-}
-
 void write_GB_operator_rowMajor_poisson1D(double* AB, int* lab, int* la, char* filename){
   FILE * file;
   int ii,jj;
@@ -136,10 +96,3 @@ void write_xy(double* vec, double* x, int* la, char* filename){
     perror(filename);
   } 
 }  
-
-int indexABCol(int i, int j, int *lab){
-  return 0;
-}
-int dgbtrftridiag(int *la, int*n, int *kl, int *ku, double *AB, int *lab, int *ipiv, int *info){
-  return *info;
-}

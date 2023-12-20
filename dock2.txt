@@ -16,15 +16,15 @@ RUN apt-get install -y curl
 RUN apt-get install -y make
 
 ## Add folders that will contains code before and after installation
-RUN mkdir /home/tp-cn2
-RUN mkdir -p /home/tp-cn2/shared_folder
-VOLUME ["home/tp-cn2/shared_folder"]
+RUN mkdir /home/tp-cn
+RUN mkdir -p /home/tp-cn/shared_folder
+VOLUME ["home/tp-cn/shared_folder"]
 
 ## add the TP_Poisson folder to the container
-ADD TP_Poisson_C_students_2022_part2 /home/tp-cn2/TP_Poisson
+ADD TP_Poisson_C /home/tp-cn/TP_Poisson
 
 #make the working directory
-WORKDIR /home/tp-cn2/TP_Poisson
+WORKDIR /home/tp-cn/TP_Poisson
 
 #create a .mk file to compile the code
 #mkdir machine name .mk
@@ -38,7 +38,7 @@ RUN cat new.mk > buildkitsandbox.mk
 #RUN make testenv
 
 #run ls to see the content of the folder
-RUN ls -l /home/tp-cn2/TP_Poisson
+RUN ls -l /home/tp-cn/TP_Poisson
 
 
 CMD [ "/bin/bash" ]
