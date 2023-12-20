@@ -69,7 +69,22 @@ void set_grid_points_1D(double* x, int* la){
 }
 
 double relative_forward_error(double* x, double* y, int* la){
-  return 0;
+  // Compute the relative forward error
+  // x: computed solution
+  // y: exact solution
+  // la: size of the solution
+  int jj;
+  double err, normy;
+  err=0.0;
+  normy=0.0;
+  for (jj=0;jj<(*la);jj++){
+    err=err+pow(x[jj]-y[jj],2);
+    normy=normy+pow(y[jj],2);
+  }
+  err=sqrt(err);
+  normy=sqrt(normy);
+  return err/normy;
+
 }
 
 int indexABCol(int i, int j, int *lab){

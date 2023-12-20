@@ -69,9 +69,110 @@ double richardson_alpha_opt(int *la){
 }
 
 void richardson_alpha(double *AB, double *RHS, double *X, double *alpha_rich, int *lab, int *la,int *ku, int*kl, double *tol, int *maxit, double *resvec, int *nbite){
+  // Richardson method with alpha given
+  // AB: matrix of size lab*la
+  // RHS: right hand side of size la
+  // X: solution of size la
+  // alpha_rich: value of alpha
+  // lab: number of bands of AB
+  // la: size of the matrix
+  // ku: number of upper bands of AB
+  // kl: number of lower bands of AB
+  // tol: tolerance for the stopping criterion
+  // maxit: maximum number of iterations
+  // resvec: vector of size maxit containing the residual at each iteration
+  // nbite: number of iterations
+  // PI: 3.14159265358979323846
+  //use richardson_alpha_opt
+   
+  //initialization
+  int i;
+  for(i=0;i<*la;i++){
+    X[i]=0;
+  }
+
+  //iteration
+  double *R;
+  R=(double *) malloc(sizeof(double)*(*la));
+  double *AX;
+  AX=(double *) malloc(sizeof(double)*(*la));
+  double *res;
+  res=(double *) malloc(sizeof(double)*(*la));
+
+  double alpha=*alpha_rich;
+  double norm_res=1;
+  int it=0;
+  while(norm_res>*tol && it<*maxit){
+    //compute residual
+    //dgbmv_("N",la,la,kl,ku,1.0,AB,lab,X,1,0.0,AX,1);
+    
+    //dgbmv_("N",la,la,kl,ku,1.0,AB,lab,X,1,0.0,AX,1);
+    cblas_dgbmv(CblasColMajor,CblasNoTrans,*la,*la,*kl,*ku,1.0,AB,*lab,X,1,0.0,AX,1);
+   // mat_vec_prod(AB,X,AX,lab,la,ku,kl);
+    for(i=0;i<*la;i++){
+      R[i]=RHS[i]-AX[i];
+    }
+    //compute new solution
+    for(i=0;i<*la;i++){
+      X[i]=X[i]+alpha*R[i];
+    }
+    //compute new residual
+    // use blas function
+    //dgbmv_("N",la,la,kl,ku,1.0,AB,lab,X,1,0.0,AX,1);
+    cblas_dgbmv(CblasColMajor,CblasNoTrans,*la,*la,*kl,*ku,1.0,AB,*lab,X,1,0.0,AX,1);
+    //mat_vec_prod(AB,X,AX,lab,la,ku,kl);
+
+    for(i=0;i<*la;i++){
+      res[i]=RHS[i]-AX[i];
+    }
+    //compute norm of the residual without auxiliary function
+    norm_res=0;
+    for(i=0;i<*la;i++){
+      norm_res=norm_res+res[i]*res[i];
+    }
+    //store the norm of the residual
+    resvec[it]=norm_res;
+    //update the number of iterations
+    it++;
+  }
+  *nbite=it;
+  free(R);
+  free(AX);
+  free(res);
+
+
+ 
+
+  
+
 }
 
-void extract_MB_jacobi_tridiag(double *AB, double *MB, int *lab, int *la,int *ku, int*kl, int *kv){
+void extract_MB_jacobi_tridiag(double *AB, double *MB, int *lab, int *la, int *ku, int *kl, int *kv) {
+  
+// the elements of the diagonal of AB are stored in MB
+// use indexABCol to access the elements of AB
+
+  int i;
+  for(i=0;i<*la;i++){
+    MB[indexABCol(i,i,lab)]=AB[indexABCol(i,i,lab-1)];
+  }
+  for(i=0;i<*la-1;i++){
+    MB[indexABCol(i,i+1,lab)]=0;
+  }
+  for(i=1;i<*la;i++){
+    MB[indexABCol(i,i-1,lab)]=0;
+  }
+
+  
+
+
+
+ 
+
+
+
+
+
 }
 
 void extract_MB_gauss_seidel_tridiag(double *AB, double *MB, int *lab, int *la,int *ku, int*kl, int *kv){
