@@ -130,6 +130,11 @@ void richardson_alpha(double *AB, double *RHS, double *X, double *alpha_rich, in
     for(i=0;i<*la;i++){
       norm_res=norm_res+res[i]*res[i];
     }
+
+
+    //use cblass function to compute the norm of the residual
+    //norm_res=cblas_dnrm2(*la,res,1);
+    
     //store the norm of the residual
     resvec[it]=norm_res;
     //update the number of iterations
@@ -166,6 +171,25 @@ void extract_MB_jacobi_tridiag(double *AB, double *MB, int *lab, int *la, int *k
 }
 
 void extract_MB_gauss_seidel_tridiag(double *AB, double *MB, int *lab, int *la,int *ku, int*kl, int *kv){
+  //A=D-E-F
+  //MB=D-E
+   int i, j;
+    
+    // Extract diagonal elements (D)
+    for (i = 0; i < *la; i++) {
+        MB[i * (*lab) + *kv] = AB[i * (*lab) + *kv];
+    }
+
+    // Extract lower triangular elements (E)
+    for (i = 1; i < *la; i++) {
+        MB[i * (*lab) + *kv - 1] = AB[i * (*lab) + *kv - 1];
+    }
+
+    // Zero out upper triangular elements
+    for (i = 0; i < *la - 1; i++) {
+        MB[i * (*lab) + *kv + 1] = 0.0;
+    }
+
 }
 
 void richardson_MB(double *AB, double *RHS, double *X, double *MB, int *lab, int *la,int *ku, int*kl, double *tol, int *maxit, double *resvec, int *nbite){
@@ -211,11 +235,9 @@ void richardson_MB(double *AB, double *RHS, double *X, double *MB, int *lab, int
     for(i=0;i<*la;i++){
       res[i]=RHS[i]-AX[i];
     }
-    //compute norm of the residual without auxiliary function
-    norm_res=0;
-    for(i=0;i<*la;i++){
-      norm_res=norm_res+res[i]*res[i];
-    }
+    //compute norm with auxiliary function
+    norm_res=cblas_dnrm2(*la,res,1);
+    
     //store the norm of the residual
     resvec[it]=norm_res;
     //update the number of iterations
@@ -224,15 +246,92 @@ void richardson_MB(double *AB, double *RHS, double *X, double *MB, int *lab, int
     
   }
 
-   *nbite=it;
+  *nbite=it;
   free(R);
   free(AX);
   free(res);
   
-
-
-
   
 
 }
 
+
+
+void poisson_1d_csr(int n, double **values, int **columns, int **row_ptr){
+  // Nombre total d'éléments non nuls dans la matrice
+    int nnz = 3 * n - 2;
+
+    // Allocation de mémoire pour les tableaux CSR
+    *values = (double *)malloc(sizeof(double) * nnz);
+    *columns = (int *)malloc(sizeof(int) * nnz);
+    *row_ptr = (int *)malloc(sizeof(int) * (n + 1));
+
+    double h = 1.0 / (n + 1); // Pas de discrétisation
+
+    // Remplissage des tableaux CSR
+    int k = 0; // Compteur pour les éléments non nuls
+    for (int i = 0; i < n; i++) {
+        // Diagonale principale
+        (*values)[k] = 2.0 / (h * h);
+        (*columns)[k] = i;
+        k++;
+
+        // Termes diagonaux supérieurs
+        if (i < n - 1) {
+            (*values)[k] = -1.0 / (h * h);
+            (*columns)[k] = i + 1;
+            k++;
+        }
+
+        // Termes diagonaux inférieurs
+        if (i > 0) {
+            (*values)[k] = -1.0 / (h * h);
+            (*columns)[k] = i - 1;
+            k++;
+        }
+
+        // Indicateur de début de nouvelle ligne
+        (*row_ptr)[i + 1] = k;
+    }
+}
+
+
+void poisson_1d_csc(int n, double **values, int **rows, int **col_ptr) {
+    // Nombre total d'éléments non nuls dans la matrice
+    int nnz = 3 * n - 2;
+
+    // Allocation de mémoire pour les tableaux CSC
+    *values = (double *)malloc(sizeof(double) * nnz);
+    *rows = (int *)malloc(sizeof(int) * nnz);
+    *col_ptr = (int *)malloc(sizeof(int) * (n + 1));
+
+    double h = 1.0 / (n + 1); // Pas de discrétisation
+
+    // Remplissage des tableaux CSC
+    int k = 0; // Compteur pour les éléments non nuls
+    for (int i = 0; i < n; i++) {
+        // Diagonale principale
+        (*values)[k] = 2.0 / (h * h);
+        (*rows)[k] = i;
+        k++;
+
+        // Termes diagonaux supérieurs
+        if (i < n - 1) {
+            (*values)[k] = -1.0 / (h * h);
+            (*rows)[k] = i + 1;
+            k++;
+        }
+
+        // Termes diagonaux inférieurs
+        if (i > 0) {
+            (*values)[k] = -1.0 / (h * h);
+            (*rows)[k] = i - 1;
+            k++;
+        }
+
+        // Indicateur de début de nouvelle colonne
+        (*col_ptr)[i] = k;
+    }
+    // Dernier indicateur de colonne
+    (*col_ptr)[n] = k;
+}

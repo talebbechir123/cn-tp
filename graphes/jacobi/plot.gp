@@ -9,6 +9,9 @@ set xlabel "Iteration"
 set ylabel "Error"
 set key outside
 
+# Use logarithmic scale for the y-axis
+set logscale y
+#set logscale x
 # Plot data from RESVEC.dat
 plot 'RESVEC.dat' using 1 with lines title 'Convergence History'
 

@@ -112,6 +112,17 @@ int indexABCol(int i, int j, int *lab){
   return j*(*lab)+i;
 }
 
-int dgbtrftridiag(int *la, int*n, int *kl, int *ku, double *AB, int *lab, int *ipiv, int *info){
-  return *info;
+  
+int dgbtrftridiag(int *la, int *n, int *kl, int *ku, double *AB, int *lab, int *ipiv, int *info) {
+    // Check for valid input
+    if (*la <= 0 || *n <= 0 || *kl < 0 || *ku < 0 || *lab < 2 * *kl + *ku + 1 || !AB || !ipiv || !info) {
+        *info = -1;  // Invalid input
+        return *info;
+    }
+
+    // LAPACK function call for LU factorization of a tridiagonal band matrix
+    dgbtrf_(n, n, kl, ku, AB, lab, ipiv,info);
+
+    return *info;
 }
+

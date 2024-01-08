@@ -31,3 +31,5 @@ void extract_MB_gauss_seidel_tridiag(double *AB, double *MB, int *lab, int *la,i
 void richardson_MB(double *AB, double *RHS, double *X, double *MB, int *lab, int *la,int *ku, int*kl, double *tol, int *maxit, double *resvec, int *nbite);
 int indexABCol(int i, int j, int *lab);
 int dgbtrftridiag(int *la, int *n, int *kl, int *ku, double *AB, int *lab, int *ipiv, int *info);
+void poisson_1d_csr(int n, double **values, int **columns, int **row_ptr);
+void poisson_1d_csc(int n, double **values, int **rows, int **col_ptr) ;
