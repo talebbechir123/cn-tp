@@ -114,7 +114,6 @@ int main(int argc,char *argv[])
 
   /* Write solution */
   write_vec(SOL, &la, "SOL.dat");
-  printf("ok\n");
 
   /* Relative forward error */
   relres = relative_forward_error(SOL, EX_SOL, &la);

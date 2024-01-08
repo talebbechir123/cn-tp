@@ -224,11 +224,14 @@ void richardson_MB(double *AB, double *RHS, double *X, double *MB, int *lab, int
     
   }
 
-  *nbite=it;
+   *nbite=it;
   free(R);
   free(AX);
   free(res);
   
+
+
+
   
 
 }
